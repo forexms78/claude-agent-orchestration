@@ -1,170 +1,115 @@
 # Claude Agent Orchestration
 
-> Claude CLI를 활용한 에이전트 오케스트레이션 — AI 엔지니어 취업을 위한 3가지 전문 에이전트 시스템
+> Claude CLI를 활용한 역할 기반 AI 에이전트 오케스트레이션 — OMS(Orchestrated Multi-agent System) 팀 구조와 Memento 패턴 기반 AI Context 설계
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## 개요
+## 핵심 아이디어: 영화 메멘토 패턴
 
-이 프로젝트는 **Anthropic Claude CLI**를 오케스트레이션하여, 세션 시작 시 목적에 맞는 AI 에이전트 모드를 선택할 수 있는 시스템입니다.
+> "잠에서 깨어났을 때 '나는 누구인가?'를 스스로 파악할 수 있는 AI를 만든다."
 
-단순히 Claude에게 질문하는 것을 넘어, **역할 기반 페르소나**를 설정함으로써 각 모드에 특화된 전문적인 피드백과 작업을 수행합니다. 현재 AI 엔지니어 취업 준비에 초점을 맞춰 세 가지 모드를 운영 중입니다.
+영화 메멘토의 주인공은 새로운 기억을 형성하지 못한다. 그래서 문신과 폴라로이드로 자신의 정체성을 기록하고, 잠에서 깨어날 때마다 읽어 맥락을 복원한다.
 
----
-
-## 작동 방식
-
-Claude CLI를 실행하면 자동으로 모드 선택 프롬프트가 나타납니다:
-
-```
-안녕하세요! 오늘 어떤 모드로 시작할까요?
-
-1. 채용 담당자 모드 — Google / Meta / Facebook 기준으로 냉철하게 이력서를 평가합니다
-2. 이력서 첨삭가 모드 — Next.js 이력서 웹사이트를 직접 수정합니다
-3. AI 프로젝트 기획자 모드 — AI 취업을 위한 포트폴리오 프로젝트를 함께 기획합니다
-
-선택해주세요 (1, 2, 3 또는 일반 대화로 진행하려면 엔터)
-```
-
-사용자가 번호를 선택하면 Claude는 해당 페르소나로 전환되어 대화를 이어갑니다.
+AI 에이전트도 마찬가지다. 세션이 끊기면 모든 컨텍스트가 사라진다. 이 프로젝트는 **AI가 스스로 역할, 팀 구조, 진행 상태를 복원할 수 있는 Context 설계 시스템**을 구현한다.
 
 ---
 
-## 에이전트 모드
+## OMS 팀 구조 (16-Agent)
 
-### 모드 1 — FAANG 채용 담당자
+실제 대형 개발 조직을 AI 에이전트로 모델링:
 
-Google, Meta, Facebook의 시니어 엔지니어링 채용 담당자 역할로 이력서를 평가합니다.
+```
+PO (사용자)
+  └── PM Agent
+        └── TPM Agent
+              ├── Context Supervisor 1 → MSA #1~4  (데이터 수집)
+              ├── Context Supervisor 2 → MSA #5~8  (분석)
+              └── Context Supervisor 3 → MSA #9~11 (아웃풋)
+```
 
-**평가 기준:**
-- 기술 스택의 깊이와 실무 적용 능력
-- 프로젝트 임팩트의 수치화된 성과
-- 문제 해결 능력과 사고 방식
-- FAANG 레벨 기준 합격/불합격 판단
-
-**특징:** 감정 없이 냉철하고 직접적으로 부족한 점을 먼저 지적합니다. 현실적인 조언을 통해 실제 채용 시장 기준을 파악할 수 있습니다.
+| 역할 | 책임 |
+|------|------|
+| PO | 방향과 요구사항만 정의 |
+| PM | PO 요청 분배, 결과만 보고 |
+| TPM | 기술 아키텍처 및 실행 순서 결정 |
+| Context Supervisor | 파이프라인 내 컨텍스트 연속성 유지 |
+| MSA Agent x11 | 단일 책임 — 하나의 에이전트는 하나의 일만 수행 |
 
 ---
 
-### 모드 2 — 이력서 첨삭가 (Next.js 웹사이트 전문)
+## AI Context 설계: 지식 vs 행동 분리
 
-Next.js + Vercel로 배포된 이력서 웹사이트를 직접 수정하는 풀스택 개발자 역할입니다.
+```
+~/.claude/
+├── CLAUDE.md                    ← 인덱스 (어디서 뭘 읽을지)
+├── settings.local.json          ← 세션 권한 설정
+├── ai-context/                  ← 지식 기반 (뇌)
+│   ├── who-am-i.md              ← "나는 누구인가"
+│   ├── po-profile.md            ← PO 협업 스타일
+│   ├── oms-team.md              ← 팀 구조
+│   └── current-project.md      ← 현재 진행 상태
+└── skills/                      ← 행동 기반 (손)
+    ├── develop/SKILL.md         ← 개발 워크플로우
+    └── deploy/SKILL.md          ← 배포 워크플로우
+```
 
-**이력서 사이트 스택:**
-- Next.js 13 (App Router)
-- TypeScript
-- Tailwind CSS + MUI
-- Zustand (상태 관리)
-- Prisma + PostgreSQL
-- Vercel 배포
+| 구분 | ai-context | skills |
+|------|-----------|--------|
+| 역할 | "무엇을 알고 있는가" | "어떻게 행동하는가" |
+| 로딩 | 세션 시작 시 명시적 로드 | 트리거 시 동적 로드 |
+| 토큰 | 사전 계산 가능 | 실행 전 불확실 |
 
-**작업 범위:**
-- 이력서 내용 개선 (문장, 키워드, 구조)
-- FAANG 채용 기준 맞춤 콘텐츠 강화
-- 실제 컴포넌트 코드 직접 수정
+> **핵심 원칙**: 구조를 잡는 것은 개발자의 몫. 내용을 채우는 것은 AI 스스로.
 
 ---
 
-### 모드 3 — AI 프로젝트 기획자
-
-AI 스타트업 공동창업자 + 실리콘밸리 PM 스타일로 AI 포트폴리오 프로젝트를 함께 기획합니다.
-
-**기획 진행 방식:**
-1. 문제 발굴 — 한국/글로벌 사회 문제 중 관심 영역 탐색 (또는 기획자가 3개 직접 제안)
-2. 문제 검증 — 실재성, 규모, 해결 가능성 분석
-3. 프로젝트 설계 — AI 에이전트 오케스트레이션 기반 솔루션 + MVP 범위 확정
-4. 포트폴리오 가치 평가 — 채용 임팩트 점수 + 오케스트레이션 활용도 점수 (각 1-10)
-
-**원칙:** 항상 문제 → 솔루션 순서. MVP는 2-4주 완성 가능한 범위로 제한.
-
----
-
-## 기술 구현
-
-이 시스템은 **`CLAUDE.md` 전역 설정 파일**을 통해 구현됩니다.
+## Memento 복원 시퀀스
 
 ```
-~/.claude/CLAUDE.md   ← Claude CLI가 모든 세션에서 참조하는 전역 설정
-```
-
-`CLAUDE.md`에 세션 시작 동작과 각 모드의 페르소나를 정의하면, Claude CLI는 새 대화를 시작할 때마다 이 설정을 자동으로 로드합니다. 별도의 코드나 서버 없이 **프롬프트 엔지니어링만으로** 에이전트 오케스트레이션을 구현한 것이 핵심입니다.
-
-```
-Claude CLI 시작
-      │
-      ▼
-CLAUDE.md 로드
-      │
-      ▼
-모드 선택 프롬프트 출력
-      │
-   ┌──┼──┐
-   1  2  3
-   │  │  │
-   ▼  ▼  ▼
-채용 첨삭 기획자
-담당 가   페르소나
-자
+새 세션 시작
+      ↓
+CLAUDE.md (인덱스 읽기)
+      ↓
+who-am-i.md → "나는 OMS PM이다"
+      ↓
+current-project.md → "여기까지 완료됨"
+      ↓
+po-profile.md → "PO는 결과만 보고받길 원함"
+      ↓
+자율 작업 시작
 ```
 
 ---
 
-## 설치 및 사용
+## 에이전트 모드 (3-mode)
 
-### 사전 요구사항
-- [Claude Code (Claude CLI)](https://claude.ai/code) 설치
+세션 시작 시 자동 모드 선택 프롬프트:
 
-### 설정
+```
+1. 채용 담당자 모드 — FAANG 기준 이력서 냉철 평가
+2. 이력서 첨삭가 모드 — Next.js 이력서 사이트 직접 수정
+3. AI 프로젝트 기획자 모드 — 포트폴리오 프로젝트 기획
+```
 
-1. 이 레포를 클론합니다:
+별도 코드·서버 없이 **CLAUDE.md 프롬프트 엔지니어링만으로** 구현.
+
+---
+
+## 설치
+
 ```bash
 git clone https://github.com/forexms78/claude-agent-orchestration.git
-```
-
-2. `.claude/CLAUDE.md` 내용을 전역 설정에 추가합니다:
-```bash
 cat .claude/CLAUDE.md >> ~/.claude/CLAUDE.md
-```
-
-3. Claude CLI를 실행합니다:
-```bash
 claude
 ```
-
-세션 시작 시 자동으로 모드 선택 프롬프트가 나타납니다.
-
----
-
-## 프로젝트 구조
-
-```
-claude-agent-orchestration/
-├── .claude/
-│   └── CLAUDE.md        # 에이전트 모드 설정 (전역 적용)
-├── docs/
-│   └── roadmap.md       # 로드맵 및 향후 계획
-└── README.md
-```
-
----
-
-## 로드맵
-
-향후 추가 예정인 기능들은 [docs/roadmap.md](./docs/roadmap.md)에서 확인할 수 있습니다.
-
-주요 계획:
-- 모의 기술 면접관 모드 (코딩 테스트 + 시스템 디자인)
-- 커버레터 작성 도우미 모드
-- 모드 간 컨텍스트 공유 (채용 담당자 피드백 → 첨삭가 전달)
-- 다른 직군을 위한 범용 템플릿화
 
 ---
 
 ## 관련 프로젝트
 
-- [이력서 웹사이트 (tailwind7)](https://github.com/forexms78/tailwind7) — Claude 첨삭가 모드가 직접 수정하는 Next.js 이력서 사이트
+- [war-investment-agent](https://github.com/forexms78/war-investment-agent) — OMS 16-agent 실전 적용 (지정학 리스크 분석)
 
 ---
 

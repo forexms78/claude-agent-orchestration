@@ -128,7 +128,7 @@ claude
 
 ## 관련 프로젝트
 
-- [war-investment-agent](https://github.com/forexms78/war-investment-agent) — OMS 16-agent 실전 적용 (지정학 리스크 분석)
+- [Whalyx](https://github.com/forexms78/whalyx) — OMS 에이전트 오케스트레이션 실전 적용 · 기관 투자자 자금 흐름 추적 플랫폼
 
 ---
 

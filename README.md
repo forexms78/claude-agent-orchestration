@@ -50,8 +50,10 @@ flowchart TD
     end
 
     subgraph OnDemand["필요 시 로드"]
-        subgraph Docs["docs/ — 프로젝트 결정"]
-            WD["whalyx-decisions.md\n아키텍처 · 컨벤션 · 명령어"]
+        subgraph Docs["docs/ — 프로젝트·가이드"]
+            PW["project-whalyx.md\n아키텍처 · 컨벤션 · 이슈"]
+            CT["context.md\n개발자 신원 · 경로"]
+            GR["guide-readme.md\n스토리텔링 · Mermaid"]
         end
 
         subgraph Skills["skills/ — 행동 규칙"]
@@ -178,6 +180,7 @@ claude
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|----------|
+| v1.6 | 2026-04-13 | 구조 대개편 — MEMORY.md 슬림화, docs/ 명명 통일(project-*, guide-*), ai-context 제거, 중복 파일 정리 |
 | v1.5 | 2026-04-08 | QMD 검색 규칙 도입 — Read 전 qmd:qmd 먼저 검색, deploy·develop 스킬 추가 |
 | v1.4 | 2026-04-07 | 분산 메모리 구조 도입 — CLAUDE.md 인덱스화(74줄), docs/·skills/ 10개 분리, 토큰 절약 6원칙 |
 | v1.3 | 2026-03-26 | README 스토리텔링 방식 전면 재작성, Mermaid 다이어그램 추가 |
